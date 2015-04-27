@@ -2,7 +2,6 @@ package metio
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"time"
 )
@@ -16,6 +15,7 @@ type Reader struct {
 	br       *bufio.Reader
 	snaps    []Snapshot
 	initTime time.Time
+	emitters map[chan int]int //Map a channel to its index
 }
 
 func NewReader(r io.Reader) *Reader {
@@ -23,6 +23,7 @@ func NewReader(r io.Reader) *Reader {
 		br:       bufio.NewReader(r),
 		snaps:    make([]Snapshot, 0, 1000),
 		initTime: time.Now(),
+		emitter:  make(map[chan int]int),
 	}
 }
 
@@ -35,17 +36,10 @@ func (r *Reader) Read(p []byte) (int, error) {
 	return n, err
 }
 
-var PriorToInit = fmt.Errorf("`since` time prior to reader init time")
-
-//Since returns a byte count since the time provided (until now). It may also
-//return an error if the time requested was before
+//Since returns a byte count since the time provided (until now).
 func (r *Reader) Since(t time.Time) (int, error) {
 	ct := 0
 	var err error
-
-	if t.Before(r.initTime) {
-		err = PriorToInit
-	}
 
 	for i := len(r.snaps) - 1; i >= 0; i-- {
 		s := r.snaps[i]
@@ -58,4 +52,25 @@ func (r *Reader) Since(t time.Time) (int, error) {
 	}
 
 	return ct, err
+}
+
+func (r *Reader) Emitter() chan int {
+	ch := make(chan int)
+	r.emitters[ch] = 0
+
+	go func() {
+		for {
+
+		}
+	}()
+
+	return nil
+}
+
+func sum(vals []int) int {
+	sum := 0
+	for j := range vals {
+		sum += vals[j]
+	}
+	return sum
 }
