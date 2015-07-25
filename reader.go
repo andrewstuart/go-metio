@@ -23,7 +23,7 @@ func NewReader(r io.Reader) *Reader {
 		br:       bufio.NewReader(r),
 		snaps:    make([]Snapshot, 0, 1000),
 		initTime: time.Now(),
-		emitter:  make(map[chan int]int),
+		emitters: make(map[chan int]int),
 	}
 }
 
